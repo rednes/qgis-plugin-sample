@@ -122,6 +122,15 @@ class InspectionReportPlugin:
     # --- 機能 -----------------------------------------------------------
 
     def create_layer(self):
+        existing = self.inspection_layer()
+        if existing is not None:
+            # 二重作成すると記録・出力先が曖昧になるので既存レイヤーを使う
+            self.iface.setActiveLayer(existing)
+            self.iface.messageBar().pushInfo(
+                "Inspection Report", "点検レイヤーは既に存在します。"
+            )
+            return existing
+
         layer = QgsVectorLayer("Point?crs=EPSG:4326", LAYER_NAME, "memory")
         provider = layer.dataProvider()
         provider.addAttributes([QgsField(n, t, comment=a) for n, t, a in FIELDS])
@@ -268,7 +277,7 @@ class InspectionReportPlugin:
             return
 
         point = self._to_layer_crs(layer, canvas_point)
-        feature = self._feature_at(layer, point)
+        feature = self._feature_at(layer, point, canvas_point)
         if feature is None:
             self._add_point(layer, point)
         else:
@@ -284,15 +293,9 @@ class InspectionReportPlugin:
         )
         return transform.transform(canvas_point)
 
-    def _feature_at(self, layer, point):
+    def _feature_at(self, layer, point, canvas_point):
         """クリック位置の許容範囲内にある最も近いポイントを返す。"""
-        # 許容半径はピクセル基準なので、レイヤーCRSでの距離に換算する
-        to_map = self.iface.mapCanvas().getCoordinateTransform()
-        origin = self._to_layer_crs(layer, to_map.toMapCoordinates(0, 0))
-        edge = self._to_layer_crs(
-            layer, to_map.toMapCoordinates(HIT_TOLERANCE_PX, 0)
-        )
-        tolerance = abs(edge.x() - origin.x())
+        tolerance = self._tolerance_in_layer_units(layer, point, canvas_point)
 
         rect = QgsRectangle(
             point.x() - tolerance,
@@ -304,10 +307,26 @@ class InspectionReportPlugin:
         nearest_distance = None
         for feature in layer.getFeatures(rect):
             distance = feature.geometry().asPoint().distance(point)
+            # 矩形の角は半径より遠いので、実距離でも絞り込む
+            if distance > tolerance:
+                continue
             if nearest_distance is None or distance < nearest_distance:
                 nearest = feature
                 nearest_distance = distance
         return nearest
+
+    def _tolerance_in_layer_units(self, layer, point, canvas_point):
+        """許容半径（ピクセル）をクリック位置周辺のレイヤーCRS距離に換算する。"""
+        # キャンバスCRSの縮尺は位置で変わりうるので、原点ではなくクリック位置で測る
+        to_map = self.iface.mapCanvas().getCoordinateTransform()
+        pixel = to_map.transform(canvas_point)
+        tolerance = 0.0
+        for dx, dy in ((HIT_TOLERANCE_PX, 0), (0, HIT_TOLERANCE_PX)):
+            edge = self._to_layer_crs(
+                layer, to_map.toMapCoordinates(pixel.x() + dx, pixel.y() + dy)
+            )
+            tolerance = max(tolerance, edge.distance(point))
+        return tolerance
 
     def _add_point(self, layer, point):
         dialog = InspectionInputDialog(
