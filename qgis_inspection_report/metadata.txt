@@ -1,0 +1,16 @@
+[general]
+name=Inspection Report
+qgisMinimumVersion=3.28
+description=現地調査の点検ポイントを記録し、地図つきPDFレポートを出力するプラグイン
+about=点検ポイントレイヤーの生成、地図クリックによる点検記録、ステータス色分け、印刷レイアウトによるPDFレポート出力を行います。
+version=0.1.0
+author=rednes
+email=528249+rednes@users.noreply.github.com
+tracker=https://github.com/rednes/qgis-plugin-sample/issues
+repository=https://github.com/rednes/qgis-plugin-sample
+homepage=https://github.com/rednes/qgis-plugin-sample
+category=Plugins
+icon=
+experimental=True
+deprecated=False
+license=MIT

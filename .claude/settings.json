@@ -1,0 +1,8 @@
+{
+  "env": {
+    "QGIS_MCP_TOOL_MODE": "compound"
+  },
+  "enabledMcpjsonServers": [
+    "qgis"
+  ]
+}
