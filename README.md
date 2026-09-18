@@ -3,6 +3,8 @@
 現地の点検結果を地図に記録し、地図つきPDFレポートを出力するQGISプラグインのサンプル。
 Claude Code と QGIS MCP でプラグインを作る流れを示すために書いたもので、そのまま業務に載せる前提のものではない。
 
+詳しくは [業務で繰り返し使えるQGISプラグインを、Claude CodeとQGIS MCPでサクッと作ってみた](https://dev.classmethod.jp/articles/building-reusable-qgis-plugin-claude-code-qgis-mcp/) を参照。
+
 ## できること
 
 - 点検ポイントレイヤーの生成（設備名・ステータス・コメント・写真・点検日時）
@@ -38,12 +40,13 @@ QGIS を起動し、プラグイン管理から `Inspection Report` を有効化
 
 ## 構成
 
-| ファイル         | 役割                                                         |
-| ---------------- | ------------------------------------------------------------ |
-| `main_plugin.py` | ツールバー、レイヤー生成、シンボル・ラベル設定、マップツール |
-| `dialogs.py`     | 点検内容の入力ダイアログ（写真のドロップ領域を含む）         |
-| `photos.py`      | 写真をデータURIに変換してプロジェクトに埋め込む              |
-| `report.py`      | 印刷レイアウトの組み立てとPDF書き出し                        |
-| `statuses.py`    | ステータスと配色の定義                                       |
+| ファイル                        | 役割                                                         |
+| ------------------------------- | ------------------------------------------------------------ |
+| `qgis_inspection_report/main_plugin.py` | ツールバー、レイヤー生成、シンボル・ラベル設定、マップツール |
+| `qgis_inspection_report/dialogs.py`     | 点検内容の入力ダイアログ（写真のドロップ領域を含む）         |
+| `qgis_inspection_report/photos.py`      | 写真をデータURIに変換してプロジェクトに埋め込む              |
+| `qgis_inspection_report/report.py`      | 印刷レイアウトの組み立てとPDF書き出し                        |
+| `qgis_inspection_report/statuses.py`    | ステータスと配色の定義                                       |
+| `qgis_project/sample.qgz`               | 動作確認用のQGISプロジェクト。背景地図と記録済みの点検ポイント入り |
 
 `.mcp.json` には開発に使った QGIS MCP サーバーの設定が入っている。プラグインの動作自体には要らない。
