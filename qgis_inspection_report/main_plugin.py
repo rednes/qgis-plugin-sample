@@ -323,7 +323,7 @@ class InspectionReportPlugin:
         tolerance = 0.0
         for dx, dy in ((HIT_TOLERANCE_PX, 0), (0, HIT_TOLERANCE_PX)):
             edge = self._to_layer_crs(
-                layer, to_map.toMapCoordinates(pixel.x() + dx, pixel.y() + dy)
+                layer, to_map.toMapCoordinatesF(pixel.x() + dx, pixel.y() + dy)
             )
             tolerance = max(tolerance, edge.distance(point))
         return tolerance
